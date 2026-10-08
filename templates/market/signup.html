@@ -1,0 +1,21 @@
+{% extends "market/base.html" %}
+
+{% block title %}회원가입 | Danggeun Market{% endblock %}
+
+{% block content %}
+<h1>회원가입</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+        <p>{{ field.label_tag }} {{ field }}</p>
+        {% if field.help_text %}
+            <div id="{{ field.auto_id }}_helptext">{{ field.help_text|safe }}</div>
+        {% endif %}
+        {{ field.errors }}
+    {% endfor %}
+    <button type="submit">회원가입</button>
+</form>
+<p>이미 회원인가요? <a href="{% url 'login' %}">로그인</a></p>
+<p><a href="{% url 'main' %}">메인으로</a></p>
+{% endblock %}

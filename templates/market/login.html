@@ -1,0 +1,23 @@
+{% extends "market/base.html" %}
+
+{% block title %}로그인 | Danggeun Market{% endblock %}
+
+{% block content %}
+<h1>로그인</h1>
+<form method="post">
+    {% csrf_token %}
+    <p>
+        <label for="id_username">아이디</label>
+        <input id="id_username" type="text" name="username" value="{{ username }}"
+               maxlength="150" autocomplete="username" required>
+    </p>
+    <p>
+        <label for="id_password">비밀번호</label>
+        <input id="id_password" type="password" name="password"
+               autocomplete="current-password" required>
+    </p>
+    <button type="submit">로그인</button>
+</form>
+<p>회원이 아니신가요? <a href="{% url 'signup' %}">회원가입</a></p>
+<p><a href="{% url 'main' %}">메인으로</a></p>
+{% endblock %}
