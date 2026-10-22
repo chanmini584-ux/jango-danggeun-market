@@ -22,7 +22,7 @@ from .models import (
 )
 
 from .forms import SignUpForm, ProductForm
-from .storage import upload_product_image
+from .storage import upload_product_image, ImageUploadError
 
 
 # Create your views here.
@@ -175,19 +175,30 @@ def product_create(request):
 
             if image:
 
-                product.image_url = (
-                    upload_product_image(
-                        image,
-                        request.user.id
+                try:
+                    product.image_url = (
+                        upload_product_image(
+                            image,
+                            request.user.id
+                        )
                     )
+
+                except ImageUploadError as error:
+
+                    # 에러 페이지 대신 폼의 사진 칸 아래에 안내 문구를 보여준다
+                    form.add_error(
+                        "image",
+                        str(error)
+                    )
+
+            if not form.errors:
+
+                product.save()
+
+                return redirect(
+                    "product_detail",
+                    product_id=product.id
                 )
-
-            product.save()
-
-            return redirect(
-                "product_detail",
-                product_id=product.id
-            )
 
     else:
 
@@ -272,19 +283,30 @@ def product_update(request, product_id):
 
             if image:
 
-                product.image_url = (
-                    upload_product_image(
-                        image,
-                        request.user.id
+                try:
+                    product.image_url = (
+                        upload_product_image(
+                            image,
+                            request.user.id
+                        )
                     )
+
+                except ImageUploadError as error:
+
+                    # 에러 페이지 대신 폼의 사진 칸 아래에 안내 문구를 보여준다
+                    form.add_error(
+                        "image",
+                        str(error)
+                    )
+
+            if not form.errors:
+
+                product.save()
+
+                return redirect(
+                    "product_detail",
+                    product_id=product.id
                 )
-
-            product.save()
-
-            return redirect(
-                "product_detail",
-                product_id=product.id
-            )
 
     else:
 
