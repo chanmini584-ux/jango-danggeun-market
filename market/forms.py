@@ -2,7 +2,35 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import Profile
+from .models import Profile, Product
+
+
+class ProductForm(forms.ModelForm):
+
+    image = forms.ImageField(
+        required=False,
+        label="상품 사진"
+    )
+
+    class Meta:
+        model = Product
+
+        fields = [
+            "title",
+            "content",
+            "region",
+            "price",
+            "negotiable",
+            "image",
+        ]
+
+        labels = {
+            "title": "제목",
+            "content": "본문내용",
+            "region": "판매 지역",
+            "price": "판매 가격",
+            "negotiable": "네고 가능",
+        }
 
 
 class SignUpForm(UserCreationForm):

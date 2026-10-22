@@ -9,6 +9,12 @@
     <h1>Danggeun Market!</h1>
     <p>이곳은 DJANGO로 만든 당근마켓 클론 프로젝트입니다.</p>
 
+    <p>
+        <a href="{% url 'product_list' %}">중고거래 게시판</a>
+        |
+        <a href="{% url 'chat_list' %}">내 채팅</a>
+    </p>
+
     <hr>
 
     {% if user.is_authenticated %}
