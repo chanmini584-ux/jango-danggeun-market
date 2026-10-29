@@ -24,7 +24,7 @@ powershell -ExecutionPolicy Bypass -File .\start.ps1
 .\.venv\Scripts\python.exe manage.py seed_market
 ```
 
-샘플 상품 12개는 로컬 SVG 일러스트를 사용합니다. 샘플 판매자 계정은 로그인이 불가능합니다.
+샘플 상품 12개는 로컬에 저장된 Unsplash 사진을 사용합니다. 출처는 `market/static/market/products/PHOTO_SOURCES.md`에 정리했습니다. 샘플 판매자 계정은 로그인이 불가능합니다.
 회원가입에서 자신의 테스트 계정을 생성하세요. 기본 비밀번호는 없습니다.
 
 ## 구현 기능
@@ -88,7 +88,21 @@ Supabase Storage를 사용하려면 `pip install supabase` 후 SUPABASE_URL과 S
 
 ![상품 목록](preview-products.png)
 
+## 디자인 리소스
+
+- Pretendard v1.3.9를 로컬 호스팅합니다. SIL Open Font License 원문은 `market/static/market/fonts/LICENSE.txt`에 포함되어 있습니다.
+- 첨부된 당근 화면을 참고해 검색 중심 헤더, 회색 배경, 흰색 카드, 공통 SVG 아이콘과 간결한 문구를 적용했습니다.
+- 시연 상품 사진은 예시이며 실제 판매 중인 물건이 아닙니다.
+
 ## 변경 이력
+
+### 2026-10-29 · v2.1.0
+- Pretendard 가변 폰트와 텍스트 크기·굵기·간격 체계 적용.
+- 대형 홍보 배너 제거, 검색·카테고리·상품 목록·나의 당근 중심으로 화면 재구성.
+- 메뉴 아이콘 SVG 통일, 회색 배경과 흰색 카드, PC/모바일 여백 정리.
+- 샘플 상품만 사진으로 변경. 기존 사용자 등록 상품 보존.
+- 기존 테스트 12개 통과, 브라우저 카테고리 연결과 390px 모바일 화면 확인.
+
 
 ### 2026-10-29 · v2.0.1
 - 본인 저장소의 기존 커밋 이력을 유지해 UI와 중고거래 기능 통합.
