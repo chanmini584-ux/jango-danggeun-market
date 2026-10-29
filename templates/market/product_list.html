@@ -1,56 +1,8 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>중고상품</title>
-</head>
-<body>
-
-<h1>중고거래 게시판</h1>
-
-<p>
-    <a href="{% url 'main' %}">메인</a>
-    |
-    <a href="{% url 'product_create' %}">판매글 작성</a>
-    |
-    <a href="{% url 'chat_list' %}">내 채팅</a>
-</p>
-
-<hr>
-
-{% for product in products %}
-
-    <div>
-        {% if product.image_url %}
-            <img src="{{ product.image_url }}" width="200">
-        {% endif %}
-
-        <h2>
-            <a href="{% url 'product_detail' product.id %}">{{ product.title }}</a>
-        </h2>
-
-        <p>가격: {{ product.price }}원</p>
-
-        <p>지역: {{ product.region }}</p>
-
-        <p>판매자: {{ product.seller.username }}</p>
-
-        <p>
-            조회 {{ product.view_count }}
-            /
-            찜 {{ product.wish_count }}
-            /
-            채팅 {{ product.chat_count }}
-        </p>
-    </div>
-
-    <hr>
-
-{% empty %}
-
-    <p>등록된 상품이 없습니다.</p>
-
-{% endfor %}
-
-</body>
-</html>
+{% extends 'market/base.html' %}{% load humanize %}{% block content %}
+{% if not mode %}<section class="hero"><div class="hero-inner"><div><div class="eyebrow">우리 동네에서 만나는 새로운 일상</div><h1>당신 근처의<br>따뜻한 중고거래</h1><p>누군가에겐 필요 없는 물건이,<br>누군가에겐 소중한 발견이 될 수 있으니까.</p><a class="primary" href="{% url 'product_create' %}">＋ 내 물건 판매하기</a></div><div class="hero-art" aria-hidden="true"><div class="art-circle"></div><div class="plant">♧</div><div class="chair"><div></div></div><div class="art-card"><span>이웃과의 기분 좋은 거래</span><strong>가까워서 더 좋아요 🧡</strong><div class="mini-avatars">● ● ● <small>우리 동네 이웃들</small></div></div><span class="spark one">✦</span><span class="spark two">✧</span><div class="art-tag">좋은 물건, 좋은 이웃</div></div></div></section>{% endif %}
+<main class="container"><div class="section-heading"><div><div class="eyebrow">NEIGHBORHOOD MARKET</div><h2>{% if mode == 'wished' %}내가 찜한 물건{% elif mode == 'mine' %}나의 판매내역{% else %}우리 동네 중고거래{% endif %}</h2></div><a class="outline" href="{% url 'product_create' %}">＋ 판매글 쓰기</a></div>
+<form class="search-panel" method="get"><input type="hidden" name="mode" value="{{ mode }}"><div class="search-main"><label class="region-input"><span>⌖</span><input name="region" placeholder="동네 입력" aria-label="거래 지역" value="{{ region }}"></label><label class="query-input"><span>⌕</span><input name="q" placeholder="어떤 물건을 찾고 계신가요?" aria-label="상품 검색" value="{{ query }}"></label><button class="primary">검색</button></div><div class="filter-row"><select aria-label="카테고리" name="category"><option value="">모든 카테고리</option>{% for value,label in categories %}<option {% if selected_category == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select><select aria-label="정렬" name="sort"><option value="">최신순</option><option value="price" {% if request.GET.sort == 'price' %}selected{% endif %}>낮은 가격순</option></select><label><input type="checkbox" name="available" value="1" {% if request.GET.available %}checked{% endif %}> 거래완료 제외</label><a href="{% url 'product_list' %}{% if mode %}?mode={{ mode }}{% endif %}">초기화</a></div></form>
+<div class="results-line"><span>{% if query %}‘{{ query }}’ 검색 결과{% else %}이웃들의 새로운 물건{% endif %} <strong>{{ products.paginator.count|intcomma }}</strong>개</span><span class="muted">가까운 곳에서 발견하는 작은 즐거움</span></div>
+<div class="product-grid">{% for product in products %}<a class="product-card" href="{% url 'product_detail' product.id %}"><div class="product-image">{% if product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.title }}" loading="lazy">{% else %}<div class="placeholder">🥕<span>새 주인을 기다리고 있어요</span></div>{% endif %}{% if product.status != 'selling' %}<span class="badge {{ product.status }}">{{ product.get_status_display }}</span>{% endif %}<span class="heart">♡</span></div><h3>{{ product.title }}</h3><strong class="price">{% if product.price == 0 %}나눔 🧡{% else %}{{ product.price|intcomma }}원{% endif %}</strong><p class="meta">{{ product.region }} · {{ product.created_at|timesince }} 전</p><div class="card-bottom"><span>{{ product.category }}</span><span>♡ {{ product.wish_count }}　☏ {{ product.chat_count }}</span></div></a>{% empty %}<div class="empty"><span>⌕</span><h3>아직 등록된 물건이 없어요</h3><p>검색 조건을 바꾸거나 첫 판매글을 올려보세요.</p><a class="primary" href="{% url 'product_create' %}">판매글 쓰기</a></div>{% endfor %}</div>
+{% if products.has_other_pages %}<div class="pagination">{% if products.has_previous %}<a href="?{{ pagination_query }}&page={{ products.previous_page_number }}">← 이전</a>{% endif %}<strong>{{ products.number }} / {{ products.paginator.num_pages }}</strong>{% if products.has_next %}<a href="?{{ pagination_query }}&page={{ products.next_page_number }}">다음 →</a>{% endif %}</div>{% endif %}
+<div class="neighbor-banner"><div><h3>쓰지 않는 물건에 새로운 이야기를</h3><p>오늘, 우리 동네 이웃과 첫 거래를 시작해보세요.</p></div><a class="primary" href="{% url 'product_create' %}">내 물건 판매하기 →</a></div></main>{% endblock %}

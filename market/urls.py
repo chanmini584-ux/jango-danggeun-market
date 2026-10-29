@@ -1,30 +1,89 @@
 from django.urls import path
-from.import views
+
+from . import views
+
 
 urlpatterns = [
-    path('', views.main, name='main'),
+    path("products/<int:product_id>/status/", views.product_status, name="product_status"),
 
-    path('signup/', views.signup, name='signup'),
+    path(
+        "",
+        views.main,
+        name="main"
+    ),
 
-    path('login/', views.login_view, name='login'),
+    path(
+        "signup/",
+        views.signup,
+        name="signup"
+    ),
 
-    path('logout/', views.logout_view, name='logout'),
+    path(
+        "login/",
+        views.login_view,
+        name="login"
+    ),
 
-    path('products/', views.product_list, name='product_list'),
+    path(
+        "logout/",
+        views.logout_view,
+        name="logout"
+    ),
 
-    path('products/new/', views.product_create, name='product_create'),
 
-    path('products/<int:product_id>/', views.product_detail, name='product_detail'),
 
-    path('products/<int:product_id>/edit/', views.product_update, name='product_update'),
+    path(
+        "products/",
+        views.product_list,
+        name="product_list"
+    ),
 
-    path('products/<int:product_id>/delete/', views.product_delete, name='product_delete'),
+    path(
+        "products/new/",
+        views.product_create,
+        name="product_create"
+    ),
 
-    path('products/<int:product_id>/wishlist/', views.wishlist_toggle, name='wishlist_toggle'),
+    path(
+        "products/<int:product_id>/",
+        views.product_detail,
+        name="product_detail"
+    ),
 
-    path('products/<int:product_id>/chat/', views.chat_start, name='chat_start'),
+    path(
+        "products/<int:product_id>/edit/",
+        views.product_update,
+        name="product_update"
+    ),
 
-    path('chats/', views.chat_list, name='chat_list'),
+    path(
+        "products/<int:product_id>/delete/",
+        views.product_delete,
+        name="product_delete"
+    ),
 
-    path('chats/<int:room_id>/', views.chat_room, name='chat_room'),
+    path(
+        "products/<int:product_id>/wishlist/",
+        views.wishlist_toggle,
+        name="wishlist_toggle"
+    ),
+
+    path(
+        "products/<int:product_id>/chat/",
+        views.chat_start,
+        name="chat_start"
+    ),
+
+    path(
+        "chats/",
+        views.chat_list,
+        name="chat_list"
+    ),
+
+    path(
+        "chats/<int:room_id>/",
+        views.chat_room,
+        name="chat_room"
+    ),
+
 ]

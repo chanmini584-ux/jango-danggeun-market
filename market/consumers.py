@@ -86,11 +86,11 @@ class ChatConsumer(
         **kwargs
     ):
 
-        message_text = (
-            content
-            .get("message", "")
-            .strip()
-        )
+        if not isinstance(content, dict) or not isinstance(content.get("message"), str):
+            return
+        message_text = content["message"].strip()
+        if len(message_text) > 2000:
+            return
 
         if not message_text:
             return

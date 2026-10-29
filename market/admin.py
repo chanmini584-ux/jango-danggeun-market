@@ -1,13 +1,13 @@
 from django.contrib import admin
 
+from .models import Profile
+
 from .models import (
-    Profile,
     Product,
     Wishlist,
     ChatRoom,
     ChatMessage,
 )
-
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):

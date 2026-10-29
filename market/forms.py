@@ -1,37 +1,11 @@
 from django import forms
+from django.db import transaction
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import Profile, Product
+from .models import Profile
 
-
-class ProductForm(forms.ModelForm):
-
-    image = forms.ImageField(
-        required=False,
-        label="상품 사진"
-    )
-
-    class Meta:
-        model = Product
-
-        fields = [
-            "title",
-            "content",
-            "region",
-            "price",
-            "negotiable",
-            "image",
-        ]
-
-        labels = {
-            "title": "제목",
-            "content": "본문내용",
-            "region": "판매 지역",
-            "price": "판매 가격",
-            "negotiable": "네고 가능",
-        }
-
+from .models import Product
 
 class SignUpForm(UserCreationForm):
 
@@ -102,6 +76,7 @@ class SignUpForm(UserCreationForm):
         return phone
 
 
+    @transaction.atomic
     def save(self, commit=True):
 
         user = super().save(
@@ -127,3 +102,36 @@ class SignUpForm(UserCreationForm):
             )
 
         return user
+
+class ProductForm(forms.ModelForm):
+
+    image = forms.ImageField(
+        required=False,
+        label="상품 사진"
+    )
+
+    class Meta:
+        model = Product
+
+        fields = [
+            "title",
+            "content",
+            "region",
+            "price",
+            "negotiable",
+            "category",
+            "image",
+        ]
+
+        labels = {
+            "title": "제목",
+            "content": "본문내용",
+            "region": "판매 지역",
+            "price": "판매 가격",
+            "negotiable": "네고 가능",
+        }
+    def clean_image(self):
+        image = self.cleaned_data.get("image")
+        if image and image.size > 5 * 1024 * 1024:
+            raise forms.ValidationError("사진은 5MB 이하로 올려주세요.")
+        return image

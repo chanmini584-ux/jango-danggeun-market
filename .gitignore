@@ -21,3 +21,14 @@ media/
 .DS_Store
 Thumbs.db
 
+
+# Local runtime and editor artifacts
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+media/
+db.sqlite3
+*.vsix

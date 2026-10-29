@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from django.shortcuts import (
     render,
     redirect,
@@ -11,24 +12,23 @@ from django.contrib.auth import (
 )
 
 from django.contrib import messages
+
+from .forms import SignUpForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import F, Q
-
 from .models import (
     Product,
     Wishlist,
     ChatRoom,
 )
-
-from .forms import SignUpForm, ProductForm
+from .forms import ProductForm
 from .storage import upload_product_image, ImageUploadError
-
+from django.views.decorators.http import require_POST
 
 # Create your views here.
 def main(request):
-    return render(request, 'market/main.html')
-
+    return product_list(request)
 
 def signup(request):
 
@@ -70,6 +70,7 @@ def signup(request):
             "form": form
         }
     )
+
 
 
 def login_view(request):
@@ -135,20 +136,34 @@ def logout_view(request):
 
 
 def product_list(request):
-
-    products = (
-        Product.objects
-        .select_related("seller")
-        .all()
-    )
-
-    return render(
-        request,
-        "market/product_list.html",
-        {
-            "products": products
-        }
-    )
+    from django.core.paginator import Paginator
+    products = Product.objects.select_related("seller").prefetch_related("wishlists", "chat_rooms")
+    query = request.GET.get("q", "").strip()
+    region = request.GET.get("region", "").strip()
+    category = request.GET.get("category", "")
+    mode = request.GET.get("mode", "")
+    if query:
+        products = products.filter(Q(title__icontains=query) | Q(content__icontains=query))
+    if region:
+        products = products.filter(region__icontains=region)
+    if category:
+        products = products.filter(category=category)
+    if mode in ("wished", "mine"):
+        if not request.user.is_authenticated:
+            return redirect("login")
+        products = products.filter(wishlists__user=request.user) if mode == "wished" else products.filter(seller=request.user)
+    if request.GET.get("available"):
+        products = products.exclude(status="sold")
+    if request.GET.get("sort") == "price":
+        products = products.order_by("price", "-created_at")
+    page = Paginator(products, 12).get_page(request.GET.get("page"))
+    params = request.GET.copy()
+    params.pop("page", None)
+    return render(request, "market/product_list.html", {
+        "products": page, "query": query, "region": region,
+        "categories": Product.CATEGORY_CHOICES, "selected_category": category,
+        "mode": mode, "pagination_query": params.urlencode(),
+    })
 
 
 @login_required
@@ -176,29 +191,13 @@ def product_create(request):
             if image:
 
                 try:
-                    product.image_url = (
-                        upload_product_image(
-                            image,
-                            request.user.id
-                        )
-                    )
-
+                    product.image_url = upload_product_image(image, request.user.id)
                 except ImageUploadError as error:
-
-                    # 에러 페이지 대신 폼의 사진 칸 아래에 안내 문구를 보여준다
-                    form.add_error(
-                        "image",
-                        str(error)
-                    )
+                    form.add_error("image", str(error))
 
             if not form.errors:
-
                 product.save()
-
-                return redirect(
-                    "product_detail",
-                    product_id=product.id
-                )
+                return redirect("product_detail", product_id=product.id)
 
     else:
 
@@ -284,29 +283,13 @@ def product_update(request, product_id):
             if image:
 
                 try:
-                    product.image_url = (
-                        upload_product_image(
-                            image,
-                            request.user.id
-                        )
-                    )
-
+                    product.image_url = upload_product_image(image, request.user.id)
                 except ImageUploadError as error:
-
-                    # 에러 페이지 대신 폼의 사진 칸 아래에 안내 문구를 보여준다
-                    form.add_error(
-                        "image",
-                        str(error)
-                    )
+                    form.add_error("image", str(error))
 
             if not form.errors:
-
                 product.save()
-
-                return redirect(
-                    "product_detail",
-                    product_id=product.id
-                )
+                return redirect("product_detail", product_id=product.id)
 
     else:
 
@@ -387,6 +370,7 @@ def wishlist_toggle(request, product_id):
 
 
 @login_required
+@require_POST
 def chat_start(request, product_id):
 
     product = get_object_or_404(
@@ -478,3 +462,18 @@ def chat_room(request, room_id):
             "chat_messages": chat_messages,
         }
     )
+
+
+
+
+@login_required
+@require_POST
+def product_status(request, product_id):
+    product = get_object_or_404(Product, pk=product_id, seller=request.user)
+    status = request.POST.get("status")
+    if status not in dict(Product._meta.get_field("status").choices):
+        from django.http import HttpResponseBadRequest
+        return HttpResponseBadRequest("올바르지 않은 거래 상태입니다.")
+    product.status = status
+    product.save(update_fields=["status"])
+    return redirect("product_detail", product_id=product.id)

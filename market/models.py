@@ -23,8 +23,11 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
-
 class Product(models.Model):
+    CATEGORY_CHOICES = [(v, v) for v in ["디지털기기", "가구/인테리어", "생활가전", "생활/주방", "의류/잡화", "스포츠/레저", "도서", "기타"]]
+    category = models.CharField(max_length=30, choices=CATEGORY_CHOICES, default="기타")
+    status = models.CharField(max_length=10, choices=[("selling", "판매중"), ("reserved", "예약중"), ("sold", "거래완료")], default="selling")
+
 
     seller = models.ForeignKey(
         User,
